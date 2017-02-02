@@ -1,0 +1,215 @@
+<html>
+  <title>Keyboad Letters Game</title>
+  <style>
+  html, body {
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      margin: 0;
+      overflow: hidden;
+  }
+  body {
+      background: DARKGREY;
+      font-family: Verdana, Helvetica, Arial, sans-serif;
+  }
+  span {
+      font-size: 16em;
+      font-weight: bold;
+      /*text-shadow: 8px 8px 11px rgba(150, 150, 150, 0.74);*/
+      text-shadow: -5px 0 black, 0 5px black, 5px 0 black, 0 -5px black;
+      z-index:-99;
+  }
+  #instructions {
+      font-size: 1.2em;
+      color: WHITE;
+      padding:20px;
+      text-align:center;
+  }
+  #voicePicker {
+      background: DARKGREY;
+      border:1px #444444 solid;
+  }
+  #voicePickerOuter {
+      background: DARKGREY;
+      z-index:99;
+      position: absolute;
+      right:8px;
+      bottom:8px;
+      padding:2px;
+      font-size:0.8em;
+  }
+  #aboutLink {
+      z-index:99;
+      position: absolute;
+      left:8px;
+      bottom:8px;
+      padding:2px;
+      font-size:0.8em;
+  }
+  </style>
+  <script>
+    var allLetters = '';
+    var keyheld = false;
+    var voice = null;
+    var voices = null;
+    var timer = null;
+
+    function init() {
+        timer = setInterval(function() {
+            voices = speechSynthesis.getVoices();
+            if (voices.length !== 0) {
+                voice = setVoice();
+                clearInterval(timer);
+            }
+        }, 200);
+    }
+    window.speechSynthesis.onvoiceschanged = function() {
+        voice = setVoice();
+    };
+
+    document.onkeyup = function(e) {
+        keyheld = false;
+    }
+
+    document.onkeypress = function(e) {
+        e = e || window.event;
+        var charCode = (typeof e.which == "number") ? e.which : e.keyCode;
+        if (charCode && !keyheld) {
+            document.getElementById('instructions').style.display = 'none';
+
+            var text = String.fromCharCode(charCode).toUpperCase();
+
+            var elem = document.createElement("span");
+            elem.textContent = text;
+            elem.style.position = "absolute";
+
+            var x = Math.round(Math.random() * (window.innerWidth - elem.clientWidth - 200));
+            var y = Math.round(Math.random() * (window.innerHeight - elem.clientHeight - 200 )) - 60;
+
+            elem.style.left = x + "px";
+            elem.style.top = y + "px";
+            elem.style.color = randomLightColour(); //colours[Math.floor(Math.random()*colours.length)];
+            document.body.appendChild(elem);
+
+            say(text.toLowerCase());
+
+            allLetters += text;
+            if (allLetters.endsWith('CAT')) say(' mee-ow!');
+            if (allLetters.endsWith('DOG')) say(' woof!');
+            if (allLetters.endsWith('COW')) say(' moo!');
+            if (allLetters.endsWith('FROG')) say(' croak');
+            if (allLetters.endsWith('BEE')) say(' buzz');
+            if (allLetters.endsWith('TURKEY')) say(' gobble!');
+
+            keyheld = true;
+        }
+    };
+
+    function say(text) {
+        if (getParameterByName('voice') != 'None') {
+            var utterance = new SpeechSynthesisUtterance(text);
+            if (voice==null) voice=setVoice();
+            if (voice!=null) utterance.voice = voice
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    function setVoice() {
+        var langParam = getParameterByName('lang');
+        var voiceName = getParameterByName('voice');
+        var lang = langParam
+        if (langParam==null && voiceName==null) {
+            //Get browser langauge
+            lang = navigator.languages ? navigator.languages[0] : (navigator.language || navigator.userLanguage)
+        }
+
+        if (lang!==null) lang=lang.toLowerCase();
+
+        voices = window.speechSynthesis.getVoices();
+        var found = null;
+        var availableLangs = [];
+        var voicesByName = {};
+        for (var i=0; i<voices.length; i++) {
+            var v = voices[i];
+            if (availableLangs.indexOf(v.lang) == -1) availableLangs.push(v.lang);
+            voicesByName[v.name] = v.lang;
+            if (found == null) {
+                if (v.name==voiceName) found = v;
+                if (v.lang.toLowerCase()==lang) found = v;
+            }
+        }
+        if (voiceName=='None') {
+            updateVoiceChoice(voicesByName, 'None');
+            return null;
+        }
+        if (found==null) {
+            if (window.langParameter && lang!=null) {
+                alert('No voice for lang ' + lang + "\n\n" +
+                      'Available langs: ' + availableLangs.join());
+            }
+            if (voiceName!=null) alert('No voice for with name ' + voiceName);
+            found = voices[0];
+        }
+
+        updateVoiceChoice(voicesByName, found.name);
+        return found;
+
+    }
+
+    function updateVoiceChoice(voicesByName, selectedName) {
+        elem = document.getElementById('voicePicker');
+
+        names = Object.keys(voicesByName);
+        names.push('None');
+
+        optionTags  = '';
+        for (var i=0; i<names.length; i++) {
+            sel = '';
+            if (names[i]==selectedName) sel='selected';
+            optionTags += '<option value="' + names[i] + '" ' + sel + '>' + names[i] + '</option>';
+        }
+        elem.innerHTML = optionTags;
+    }
+
+    function voicePicked(elem) {
+        window.location = "?voice=" + encodeURI(elem.value);
+    }
+
+    function randomLightColour() {
+        var hue = Math.random() * 360;
+        var saturation = 100;
+        var varience = 50;
+        return 'hsl(' + hue + ', ' + saturation + '%, ' + varience + '%)';
+    }
+
+    // http://stackoverflow.com/a/901144/338265
+    function getParameterByName(name) {
+        var url = window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+  </script>
+</html>
+<body onLoad="init();">
+
+<div id="voicePickerOuter">
+  <label for="voicePicker">Voice:</label>
+  <select id="voicePicker" onChange="voicePicked(this);">
+    <option value="Alex">Alex</option>
+    <option value="None">None</option>
+  </select>
+</div>
+
+<div id="instructions">
+   If you are a baby, whack your keyboard randomly now
+</div>
+
+<div id="aboutLink">
+   (<a href="//harrywood.co.uk/blog/2016/09/10/keyboard-letters-game/" title="Blog post about this">About</a>)
+</div>
+</body>
+</html>
