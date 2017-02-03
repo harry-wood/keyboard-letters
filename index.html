@@ -1,5 +1,5 @@
 <html>
-  <title>Keyboad Letters Game</title>
+  <title>Keyboard Letters Game</title>
   <style>
   html, body {
       width: 100%;
@@ -49,6 +49,7 @@
   </style>
   <script>
     var allLetters = '';
+    var allElements = [];
     var keyheld = false;
     var voice = null;
     var voices = null;
@@ -90,6 +91,7 @@
             elem.style.top = y + "px";
             elem.style.color = randomLightColour(); //colours[Math.floor(Math.random()*colours.length)];
             document.body.appendChild(elem);
+            allElements.push(elem);
 
             say(text.toLowerCase());
 
@@ -102,8 +104,30 @@
             if (allLetters.endsWith('TURKEY')) say(' gobble!');
 
             keyheld = true;
+
+            truncate();
         }
     };
+
+    function truncate() {
+      var maxLenParam = getParameterByName('maxlen');
+      if (maxLenParam == null) {
+        return;
+      }
+      var maxLength = parseInt(maxLenParam || '50');
+      if (maxLength < 1) {
+        return;
+      }
+
+      // Clean up so that there are only a certain amount of letters on screen.
+      while (allElements.length > maxLength) {
+        var removed = allElements.shift();
+        document.body.removeChild(removed);
+      }
+      if (allLetters.length > allElements.length) {
+        allLetters = allLetters.substring(allLetters.length - allElements.length);
+      }
+    }
 
     function say(text) {
         if (getParameterByName('voice') != 'None') {
