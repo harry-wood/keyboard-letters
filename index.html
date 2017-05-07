@@ -55,6 +55,17 @@
     var voices = null;
     var timer = null;
 
+    var animals = { 
+        'CAT': 'mee-ow!',
+        'DOG': 'woof!',
+        'COW': 'moo!',
+        'FROG': 'croak',
+        'BEE': 'buzz',
+        'TURKEY': 'gobble!',
+        'PIG': 'oink!',
+        'SHEEP': 'baa!'
+    };
+
     function init() {
         timer = setInterval(function() {
             voices = speechSynthesis.getVoices();
@@ -96,14 +107,10 @@
             say(text.toLowerCase());
 
             allLetters += text;
-            if (allLetters.endsWith('CAT')) say(' mee-ow!');
-            if (allLetters.endsWith('DOG')) say(' woof!');
-            if (allLetters.endsWith('COW')) say(' moo!');
-            if (allLetters.endsWith('FROG')) say(' croak');
-            if (allLetters.endsWith('BEE')) say(' buzz');
-            if (allLetters.endsWith('TURKEY')) say(' gobble!');
-            if (allLetters.endsWith('PIG')) say('oink!');
-            if (allLetters.endsWith('SHEEP')) say('baa!');
+
+            for (animal in animals) {
+              if(allLetters.endsWith(animal)) say(animals[animal]);
+            }
 
             keyheld = true;
 
