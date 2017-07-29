@@ -55,7 +55,7 @@
     var voices = null;
     var timer = null;
 
-    var animals = { 
+    var animals = {
         'CAT': 'mee-ow!',
         'DOG': 'woof!',
         'COW': 'moo!',
@@ -91,30 +91,48 @@
 
             var text = String.fromCharCode(charCode).toUpperCase();
 
-            var elem = document.createElement("span");
-            elem.textContent = text;
-            elem.style.position = "absolute";
+            doLetter(text);
+        }
+    };
 
-            var x = Math.round(Math.random() * (window.innerWidth - elem.clientWidth - 200));
-            var y = Math.round(Math.random() * (window.innerHeight - elem.clientHeight - 200 )) - 60;
+    function doLetter(text) {
+        var elem = document.createElement("span");
+        elem.textContent = text;
+        elem.style.position = "absolute";
 
-            elem.style.left = x + "px";
-            elem.style.top = y + "px";
-            elem.style.color = randomLightColour(); //colours[Math.floor(Math.random()*colours.length)];
-            document.body.appendChild(elem);
-            allElements.push(elem);
+        var x = Math.round(Math.random() * (window.innerWidth - elem.clientWidth - 200));
+        var y = Math.round(Math.random() * (window.innerHeight - elem.clientHeight - 200 )) - 60;
 
-            say(text.toLowerCase());
+        elem.style.left = x + "px";
+        elem.style.top = y + "px";
+        elem.style.color = randomLightColour(); //colours[Math.floor(Math.random()*colours.length)];
+        document.body.appendChild(elem);
+        allElements.push(elem);
 
-            allLetters += text;
+        say(text.toLowerCase());
 
-            for (animal in animals) {
-              if(allLetters.endsWith(animal)) say(animals[animal]);
-            }
+        allLetters += text;
 
-            keyheld = true;
+        for (animal in animals) {
+          if(allLetters.endsWith(animal)) say(animals[animal]);
+        }
 
-            truncate();
+        keyheld = true;
+
+        truncate();
+    }
+
+    document.onclick = function() {
+        if (allLetters=='') allLetters='@'; // before start of the alphabet
+        lastLetter = allLetters[allLetters.length -1];
+        nextLetter = String.fromCharCode(lastLetter.charCodeAt(0) + 1)
+        if (lastLetter == 'Z') {
+            say('alphabet!');
+            allLetters = '';
+        } else if (lastLetter == '9') {
+            doLetter('10');
+        } else {
+            doLetter(nextLetter);
         }
     };
 
