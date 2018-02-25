@@ -12,12 +12,16 @@
       background: DARKGREY;
       font-family: Verdana, Helvetica, Arial, sans-serif;
   }
-  span {
+  .letter {
       font-size: 16em;
       font-weight: bold;
       /*text-shadow: 8px 8px 11px rgba(150, 150, 150, 0.74);*/
       text-shadow: -5px 0 black, 0 5px black, 5px 0 black, 0 -5px black;
       z-index:-99;
+  }
+  span img {
+      border: solid black 5px;
+      background: WHITE;
   }
   #instructions {
       font-size: 1.2em;
@@ -25,11 +29,11 @@
       padding:20px;
       text-align:center;
   }
-  #voicePicker {
+  select {
       background: DARKGREY;
       border:1px #444444 solid;
   }
-  #voicePickerOuter {
+  #settingsPanel {
       background: DARKGREY;
       z-index:99;
       position: absolute;
@@ -38,7 +42,7 @@
       padding:2px;
       font-size:0.8em;
   }
-  #aboutLink {
+  #infoAndCredits {
       z-index:99;
       position: absolute;
       left:8px;
@@ -46,6 +50,9 @@
       padding:2px;
       font-size:0.8em;
   }
+  #credits {
+      font-size:0.7em;
+  }|
   </style>
   <script>
     var allLetters = '';
@@ -53,7 +60,37 @@
     var keyheld = false;
     var voice = null;
     var voices = null;
+    var mode = null;
     var timer = null;
+
+    var words = {
+        "A": {word: "Apple",      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Fuji_apple.jpg/320px-Fuji_apple.jpg" },
+        "B": {word: "Ball",       image: "https://upload.wikimedia.org/wikipedia/commons/7/7f/Generic_football.png" },
+        "C": {word: "Cat",        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Black_hills_cat-tochichi.jpg/320px-Black_hills_cat-tochichi.jpg" },
+        "D": {word: "Dog",        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Siberian_husky1.JPG/320px-Siberian_husky1.JPG" },
+        "E": {word: "Egg",        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Natural_Easter_Colored_Eggs.jpg/320px-Natural_Easter_Colored_Eggs.jpg" },
+        "F": {word: "Fish",       image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Pseudorasbora_parva%28edited_version%29.jpg/320px-Pseudorasbora_parva%28edited_version%29.jpg" },
+        "G": {word: "Gate",       image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Hargimont_051030_%285%29.JPG/320px-Hargimont_051030_%285%29.JPG" },
+        "H": {word: "Horse",      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Bess2.jpg/279px-Bess2.jpg" },
+        "I": {word: "Igloo",      image: "https://upload.wikimedia.org/wikipedia/commons/9/99/Igloo_outside.jpg" },
+        "J": {word: "Jam",        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Marmeladesorten.jpg/320px-Marmeladesorten.jpg" },
+        "K": {word: "Kangaroo",   image: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Kangaroo1.jpg/210px-Kangaroo1.jpg" },
+        "L": {word: "Lion",       image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Lion-1.jpg/320px-Lion-1.jpg" },
+        "M": {word: "Mouse",      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Apodemus_sylvaticus_bosmuis.jpg/320px-Apodemus_sylvaticus_bosmuis.jpg" },
+        "N": {word: "Nest",       image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Hausrotschwanz_Brutpflege_2006-05-24_211.jpg/320px-Hausrotschwanz_Brutpflege_2006-05-24_211.jpg" },
+        "O": {word: "Octopus",    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Expl0717_-_Flickr_-_NOAA_Photo_Library.jpg/320px-Expl0717_-_Flickr_-_NOAA_Photo_Library.jpg" },
+        "P": {word: "Parrot",     image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Rose-ringed_Parakeet_%28Psittacula_krameri%29_-male2.jpg/201px-Rose-ringed_Parakeet_%28Psittacula_krameri%29_-male2.jpg" },
+        "Q": {word: "Queen",      image: "https://upload.wikimedia.org/wikipedia/commons/9/9c/Queen_Victoria_1887.jpg" },
+        "R": {word: "Rabbit",     image: "https://upload.wikimedia.org/wikipedia/commons/4/48/American_Grand_Champion_Dutch_Rabbit.jpg" },
+        "S": {word: "Sun",        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/April_dawn.jpg/500px-April_dawn.jpg" },
+        "T": {word: "Turtle",     image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Sea_Turtle.jpg/500px-Sea_Turtle.jpg" },
+        "U": {word: "Umbrella",   image: "https://upload.wikimedia.org/wikipedia/commons/0/06/Umbrella.png" },
+        "V": {word: "Volcano",    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Augustine_Volcano_Jan_12_2006.jpg/500px-Augustine_Volcano_Jan_12_2006.jpg" },
+        "W": {word: "Window",     image: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Gordijnen_aan_venster.JPG/500px-Gordijnen_aan_venster.JPG" },
+        "X": {word: "Xylophone",  image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Toy_xylophone.jpg/500px-Toy_xylophone.jpg" },
+        "Y": {word: "Yo yo",      image: "https://upload.wikimedia.org/wikipedia/commons/9/92/Wooden_yo-yo.jpg" },
+        "Z": {word: "Zebra",      image: "https://upload.wikimedia.org/wikipedia/commons/5/53/Zebra_rownikowa_Equus_burchelli_boehmi_RB3.jpg" }
+    };
 
     var animals = {
         'CAT': 'mee-ow!',
@@ -67,6 +104,8 @@
     };
 
     function init() {
+        initMode();
+
         timer = setInterval(function() {
             voices = speechSynthesis.getVoices();
             if (voices.length !== 0) {
@@ -87,39 +126,55 @@
         e = e || window.event;
         var charCode = (typeof e.which == "number") ? e.which : e.keyCode;
         if (charCode && !keyheld) {
-            document.getElementById('instructions').style.display = 'none';
-
             var text = String.fromCharCode(charCode).toUpperCase();
-
             doLetter(text);
         }
     };
 
-    function doLetter(text) {
-        var elem = document.createElement("span");
-        elem.textContent = text;
-        elem.style.position = "absolute";
+    function doLetter(letter) {
+        document.getElementById('instructions').style.display = 'none';
+        text = letter;
 
-        var x = Math.round(Math.random() * (window.innerWidth - elem.clientWidth - 200));
-        var y = Math.round(Math.random() * (window.innerHeight - elem.clientHeight - 200 )) - 60;
+        if (mode=='words') {
+            for (var searchLetter in words) {
+                wordData = words[searchLetter];
 
-        elem.style.left = x + "px";
-        elem.style.top = y + "px";
-        elem.style.color = randomLightColour(); //colours[Math.floor(Math.random()*colours.length)];
-        document.body.appendChild(elem);
-        allElements.push(elem);
+                if (letter==searchLetter) {
+                    text = letter + ", is for, " + wordData.word;
+                    showImage(wordData.image);
+                }
+            }
+        }
 
         say(text.toLowerCase());
 
-        allLetters += text;
+        allLetters += letter;
 
         for (animal in animals) {
-          if(allLetters.endsWith(animal)) say(animals[animal]);
+            if(allLetters.endsWith(animal)) say(animals[animal]);
         }
+
+        drawColourfulText(letter);
 
         keyheld = true;
 
         truncate();
+    }
+
+    function drawColourfulText(text) {
+        var elem = document.createElement("span");
+        elem.setAttribute("class", "letter");
+        elem.textContent = text;
+        elem.style.position = "absolute";
+
+        document.body.appendChild(elem);
+        var x = Math.round(Math.random() * (window.innerWidth - elem.clientWidth));
+        var y = Math.round(Math.random() * (window.innerHeight - (elem.clientHeight - 100))) - 70;
+
+        elem.style.left = x + "px";
+        elem.style.top = y + "px";
+        elem.style.color = randomLightColour(); //colours[Math.floor(Math.random()*colours.length)];
+        allElements.push(elem);
     }
 
     document.onclick = function() {
@@ -137,23 +192,20 @@
     };
 
     function truncate() {
-      var maxLenParam = getParameterByName('maxlen');
-      if (maxLenParam == null) {
-        return;
-      }
-      var maxLength = parseInt(maxLenParam || '50');
-      if (maxLength < 1) {
-        return;
-      }
+        var maxLenParam = getParameterByName('maxlen');
+        if (maxLenParam == null) return;
+        var maxLength = parseInt(maxLenParam || '50');
+        if (maxLength < 1) return;
+        if (mode=='words') maxLength = maxLength * 2;
 
-      // Clean up so that there are only a certain amount of letters on screen.
-      while (allElements.length > maxLength) {
-        var removed = allElements.shift();
-        document.body.removeChild(removed);
-      }
-      if (allLetters.length > allElements.length) {
-        allLetters = allLetters.substring(allLetters.length - allElements.length);
-      }
+        // Clean up so that there are only a certain amount of letters on screen.
+        while (allElements.length > maxLength) {
+            var removed = allElements.shift();
+            document.body.removeChild(removed);
+        }
+        if (allLetters.length > allElements.length) {
+            allLetters = allLetters.substring(allLetters.length - allElements.length);
+        }
     }
 
     function say(text) {
@@ -163,6 +215,26 @@
             if (voice!=null) utterance.voice = voice
             window.speechSynthesis.speak(utterance);
         }
+    }
+
+    function showImage(imageURL) {
+        if (imageURL=='') return;
+
+        var elem = document.createElement("span");
+        elem.innerHTML = "<img src='" + imageURL + "'>";
+        elem.style.position = "absolute";
+        document.body.appendChild(elem);
+
+
+        var x = Math.round(Math.random() * (window.innerWidth - elem.clientWidth));
+        var y = Math.round(Math.random() * (window.innerHeight - elem.clientHeight));
+
+        elem.style.left = x + "px";
+        elem.style.top = y + "px";
+
+        allElements.push(elem);
+
+        document.getElementById('credits').innerHTML = "Open licensed images via <a href='https://en.wikibooks.org/wiki/Wikijunior:Alphabet'>WikiBooks.org Alphabet</a>";
     }
 
     function setVoice() {
@@ -223,7 +295,23 @@
     }
 
     function voicePicked(elem) {
-        window.location = "?voice=" + encodeURI(elem.value);
+        reloadSettings();
+    }
+
+    function modePicked(elem) {
+        mode = elem.value;
+        reloadSettings();
+    }
+
+    function reloadSettings() {
+        var voiceName = document.getElementById('voicePicker').value;
+        window.location = "?mode=" + mode + "&voice=" + encodeURI(voiceName);
+    }
+
+    function initMode() {
+        mode = getParameterByName('mode');
+        if (mode==null) mode = 'letters';
+        document.getElementById('modePicker').value = mode;
     }
 
     function randomLightColour() {
@@ -247,11 +335,17 @@
 </html>
 <body onLoad="init();">
 
-<div id="voicePickerOuter">
+<div id="settingsPanel">
   <label for="voicePicker">Voice:</label>
   <select id="voicePicker" onChange="voicePicked(this);">
     <option value="Alex">Alex</option>
     <option value="None">None</option>
+  </select>
+
+  <label for="modePicker">Mode:</label>
+  <select id="modePicker" onChange="modePicked(this);">
+    <option value="letters">letters</option>
+    <option value="words">words</option>
   </select>
 </div>
 
@@ -259,8 +353,10 @@
    If you are a baby, whack your keyboard randomly now
 </div>
 
-<div id="aboutLink">
-   (<a href="//harrywood.co.uk/blog/2016/09/10/keyboard-letters-game/" title="Blog post about this">About</a>)
+<div id="infoAndCredits">
+   (<a href="//harrywood.co.uk/blog/2016/09/10/keyboard-letters-game/" title="Blog post about this" onClick="return false;">About</a>)
+   <span id="credits">
+   </span>
 </div>
 </body>
 </html>
