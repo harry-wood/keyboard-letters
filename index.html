@@ -12,16 +12,17 @@
       background: DARKGREY;
       font-family: Verdana, Helvetica, Arial, sans-serif;
   }
-  .letter {
+  span.letter {
       font-size: 16em;
       font-weight: bold;
       /*text-shadow: 8px 8px 11px rgba(150, 150, 150, 0.74);*/
       text-shadow: -5px 0 black, 0 5px black, 5px 0 black, 0 -5px black;
       z-index:-99;
   }
-  span img {
+  span.image {
       border: solid black 5px;
       background: WHITE;
+      z-index:-99;
   }
   #instructions {
       font-size: 1.2em;
@@ -221,6 +222,7 @@
         if (imageURL=='') return;
 
         var elem = document.createElement("span");
+        elem.setAttribute("class", "image");
         elem.innerHTML = "<img src='" + imageURL + "'>";
         elem.style.position = "absolute";
         document.body.appendChild(elem);
