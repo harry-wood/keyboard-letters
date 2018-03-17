@@ -136,12 +136,15 @@
         document.getElementById('instructions').style.display = 'none';
         text = letter;
 
-        if (mode=='words') {
+        if (mode=='words' || mode=='letter-is-for-word') {
             for (var searchLetter in words) {
                 wordData = words[searchLetter];
 
                 if (letter==searchLetter) {
-                    text = letter + ", is for, " + wordData.word;
+                    text = wordData.word;
+                    if (mode=='letter-is-for-word') {
+                        text = letter + ", is for, " + text;
+                    }
                     showImage(wordData.image);
                 }
             }
@@ -348,6 +351,7 @@
   <select id="modePicker" onChange="modePicked(this);">
     <option value="letters">letters</option>
     <option value="words">words</option>
+    <option value="letter-is-for-word">letter is for word</option>
   </select>
 </div>
 
