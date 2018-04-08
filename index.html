@@ -322,6 +322,21 @@
         mode = getParameterByName('mode');
         if (mode==null) mode = 'letters';
         document.getElementById('modePicker').value = mode;
+
+        if (mode=='words' || mode=='letter-is-for-word') {
+            for (var i in words) {
+                wordData = words[i];
+                preloadImage(wordData.image);
+            }
+        }
+    }
+
+    function preloadImage (url) {
+        try {
+            var elem = document.createElement("span");
+            elem.setAttribute("class", "image");
+            elem.innerHTML = "<img src='" + url + "'>";
+        } catch (e) { }
     }
 
     function randomLightColour() {
