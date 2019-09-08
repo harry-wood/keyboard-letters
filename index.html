@@ -155,6 +155,14 @@
             }
         }
 
+        if (letter == "=") text="equals";
+        if (letter == "+") text="plus";
+        if (letter == "-") text="minus";
+
+        var mid_sum = (allLetters.length>0 && allLetters[allLetters.length-1].match(/\d/))
+        if ((letter == "X" || letter == "*") && mid_sum) { text="times"; letter = "x" }
+        if ((letter == "/" || letter == "÷") && mid_sum) { text="divided by"; letter = "÷" }
+
         say(text.toLowerCase());
 
         allLetters += letter;
@@ -163,11 +171,39 @@
             if(allLetters.endsWith(animal)) say(animals[animal]);
         }
 
-        drawColourfulText(letter);
+        if (letter=="=") {
+            var answer = doSums(allLetters);
+            if (answer!=null && answer!=undefined) {
+                letter += answer;
+                say(answer);
+            }
+        }
+
+        drawColourfulText(letter);s
 
         keyheld = true;
 
         truncate();
+    }
+
+    function doSums(allLetters) {
+        var pos = allLetters.length - 2;
+        var sum = ""
+        var found_start_of_sum = false
+        while(!found_start_of_sum) {
+            var onChar = allLetters[pos];
+            if (onChar=="÷") onChar="/";
+            if (onChar=="x") onChar="*";
+
+            if (onChar.match(/[+-/*0123456789]/i)) {
+                sum = onChar + sum;
+            } else {
+                found_start_of_sum = true;
+            }
+            if (pos==0) found_start_of_sum = true;
+            pos -= 1;
+        }
+        return eval(sum);
     }
 
     function drawColourfulText(text) {
