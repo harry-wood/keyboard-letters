@@ -139,20 +139,15 @@
         text = letter;
 
         if (mode=='words' || mode=='letter-is-for-word') {
-            for (var searchLetter in words) {
-                wordData = words[searchLetter];
-
-                if (letter==searchLetter) {
-                    text = wordData.word;
-                    if (mode=='letter-is-for-word') {
-                        text = letter + ", is for, " + text;
-                    }
-
-                    var imageCredits = "Open licensed images via <a href='https://en.wikibooks.org/wiki/Wikijunior:Alphabet'>WikiJunior Alphabet</a>";
-                    if (wordData.imageCredits != null) imageCredits = wordData.imageCredits;
-                    showImage(wordData.image, imageCredits);
-                }
+            wordData = words[letter];
+            text = wordData.word;
+            if (mode=='letter-is-for-word') {
+                text = letter + ", is for, " + text;
             }
+
+            var imageCredits = "Open licensed images via <a href='https://en.wikibooks.org/wiki/Wikijunior:Alphabet'>WikiJunior Alphabet</a>";
+            if (wordData.imageCredits != null) imageCredits = wordData.imageCredits;
+            showImage(wordData.image, imageCredits);
         }
 
         if (letter == "=") text="equals";
