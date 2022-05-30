@@ -26,9 +26,9 @@ In general Chrome's voice synthesis seems the best. We've also had fun with the 
 (although keyboard letters is not internationalised when it comes to reading words)
 
 `mode`:
-  - `letters` (default) - Just showing letters.
+  - `letter-is-for-word` (default) - Read out letter "is for" word e.g. "A is for Apple".
+  - `letters` - Just showing letters.
   - `words` - Show and read out words beginning with that letter.
-  - `letter-is-for-word` - Read out letter "is for" word e.g. "A is for Apple". 
 
 Words and images for those words come from the
 [WikiJunior Alphabet book](https://en.wikibooks.org/wiki/Wikijunior:Alphabet) (all open licensed)

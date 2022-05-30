@@ -351,7 +351,7 @@
 
     function initMode() {
         mode = getParameterByName('mode');
-        if (mode==null) mode = 'letters';
+        if (mode==null) mode = 'letter-is-for-word';
         document.getElementById('modePicker').value = mode;
 
         if (mode=='words' || mode=='letter-is-for-word') {
@@ -400,9 +400,9 @@
 
   <label for="modePicker">Mode:</label>
   <select id="modePicker" onChange="modePicked(this);">
+    <option value="letter-is-for-word">letter is for word</option>
     <option value="letters">letters</option>
     <option value="words">words</option>
-    <option value="letter-is-for-word">letter is for word</option>
   </select>
 </div>
 
